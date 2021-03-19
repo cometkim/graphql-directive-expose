@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "strict": true,
+    "composite": true,
+    "incremental": true,
+    "rootDir": "src",
+    "outDir": ".",
+    "declaration": true,
+    "declarationDir": "."
+  },
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
