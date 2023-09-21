@@ -3,12 +3,6 @@
   "version": "1.0.0",
   "license": "MIT",
   "sideEffects": false,
-  "main": "src/index.ts",
-  "publishConfig": {
-    "main": "index.js",
-    "module": "index.mjs",
-    "types": "index.d.ts"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/cometkim/graphql-directive-expose.git"
@@ -23,39 +17,37 @@
     "graphql-directive",
     "meta-programming"
   ],
+  "main": "./lib/index.cjs",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "require": "./lib/index.cjs",
+      "import": "./lib/index.mjs"
+    }
+  },
   "files": [
     "src",
-    "index.js",
-    "index.mjs",
-    "index.d.ts"
+    "lib"
   ],
   "scripts": {
-    "test": "tap --100",
-    "build": "concurrently \"yarn:build:*\"",
-    "build:dts": "tsc --emitDeclarationOnly",
-    "build:cjs": "babel src -d . --env-name commonjs --extensions .ts",
-    "build:esm": "babel src -d . --env-name esmodule --extensions .ts --out-file-extension .mjs"
+    "test": "vitest",
+    "build": "nanobundle build"
+  },
+  "peerDependencies": {
+    "graphql": "^15.0.0 || ^16.0.0"
   },
   "dependencies": {
-    "@graphql-tools/utils": "^7.6.0",
-    "core-js": "^3.9.1"
+    "@graphql-tools/utils": "^10.0.6"
   },
   "devDependencies": {
-    "@babel/cli": "^7.13.10",
-    "@babel/core": "^7.13.10",
-    "@babel/preset-env": "^7.13.10",
-    "@babel/preset-modules": "^0.1.4",
-    "@babel/preset-typescript": "^7.13.0",
     "@graphql-tools/schema": "^7.1.3",
-    "@types/common-tags": "^1.8.0",
-    "@types/graphql": "^14.5.0",
-    "@types/tap": "^14.10.3",
-    "babel-plugin-module-extension-resolver": "^1.0.0-rc.2",
-    "babel-preset-minify": "^0.5.1",
-    "common-tags": "^1.8.0",
-    "concurrently": "^6.0.0",
-    "graphql": "^15.5.0",
-    "tap": "^14.11.0",
-    "typescript": "^4.2.3"
-  }
+    "@types/common-tags": "^1.8.2",
+    "@types/node": "^20.6.3",
+    "common-tags": "^1.8.2",
+    "graphql": "^16.8.1",
+    "nanobundle": "^1.6.0",
+    "typescript": "^5.2.2",
+    "vitest": "^0.34.5"
+  },
+  "packageManager": "yarn@3.6.3"
 }

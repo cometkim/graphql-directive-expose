@@ -1,6 +1,17 @@
-import type { GraphQLFieldConfig, GraphQLInputFieldConfig, GraphQLInputObjectType, GraphQLObjectType, GraphQLSchema } from 'graphql';
-import { DirectiveLocation } from 'graphql';
-import { mapSchema, getDirectives, MapperKind } from '@graphql-tools/utils';
+import {
+  DirectiveLocation,
+  type GraphQLFieldConfig,
+  type GraphQLInputFieldConfig,
+  type GraphQLInputObjectType,
+  type GraphQLObjectType,
+  type GraphQLSchema,
+} from 'graphql';
+import {
+  mapSchema,
+  getDirectives,
+  MapperKind,
+  DirectiveAnnotation,
+} from '@graphql-tools/utils';
 
 const DirectiveKey = {
   Expose: 'expose',
@@ -43,6 +54,24 @@ export function exposeDirective(target: string | string[] = [], exposeDefault: b
 
   let prevObjectType: ObjectType;
 
+  function getDirectiveArgs(directives: DirectiveAnnotation[]) {
+    const result = {
+      exposeTo: [],
+      hideFrom: [],
+    };
+    for (const directive of directives) {
+      switch (directive.name) {
+        case DirectiveKey.Expose:
+          result.exposeTo = directive.args?.[DirectiveArgKey.Expose] || [];
+          break;
+        case DirectiveKey.Hide:
+          result.hideFrom = directive.args?.[DirectiveArgKey.Hide] || [];
+          break;
+      }
+    }
+    return result;
+  }
+
   function mapObject<T extends ObjectType>(schema: GraphQLSchema, t: T) {
     let result: typeof t | null = exposeDefault ? t : null;
 
@@ -53,10 +82,9 @@ export function exposeDirective(target: string | string[] = [], exposeDefault: b
     }
 
     const directives = getDirectives(schema, t);
-    if (!directives) return result;
+    if (!directives.length) return result;
 
-    const { to: exposeTo = [] } = (directives[DirectiveKey.Expose] ?? {}) as { to?: string[] };
-    const { from: hideFrom = [] } = (directives[DirectiveKey.Hide] ?? {}) as { from?: string[] };
+    const { exposeTo, hideFrom } = getDirectiveArgs(directives);
 
     if (intersect(targets, hideFrom)) {
       result = null;
@@ -73,13 +101,10 @@ export function exposeDirective(target: string | string[] = [], exposeDefault: b
   function mapField<T extends FieldType>(schema: GraphQLSchema, t: T) {
     let result: typeof t | null = (exposes.has(prevObjectType) || exposeDefault) ? t : null;
 
-    console.log(`${prevObjectType?.astNode?.name.value}.${t.astNode}`);
-
     const directives = getDirectives(schema, t);
     if (!directives) return result;
 
-    const { to: exposeTo = [] } = (directives[DirectiveKey.Expose] ?? {}) as { to?: string[] };
-    const { from: hideFrom = [] } = (directives[DirectiveKey.Hide] ?? {}) as { from?: string[] };
+    const { exposeTo, hideFrom } = getDirectiveArgs(directives);
 
     if (intersect(targets, hideFrom)) {
       result = null;
